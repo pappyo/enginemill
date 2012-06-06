@@ -1,8 +1,8 @@
-EngineMill
-==========
+Engine Mill
+===========
 Making it dead simple to build stuff on the internets since 2012.
 
-EngineMill is a development kit designed to empower web developers and
+Engine Mill is a development kit designed to empower web developers and
 designers to rapidly build high quality websites, applications, and APIs. It is
 built using Node.js and CoffeeScript; FTW.
 
