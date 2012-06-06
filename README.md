@@ -1,11 +1,10 @@
-Maestro
-=======
+EngineMill
+==========
+Making it dead simple to build stuff on the internets since 2012.
 
-Service: Web application process controller and HTTP proxy
-
-Maestro is a service (in a service oriented architecture) that is used to
-start, restart, and monitor web applications on a server. Maestro is built on
-Node.js.
+EngineMill is a development kit designed to empower web developers and
+designers to rapidly build high quality websites, applications, and APIs. It is
+built using Node.js and CoffeeScript; FTW.
 
 Copyright and License
 ---------------------
