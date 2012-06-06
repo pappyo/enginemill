@@ -4,6 +4,7 @@ task :default => :build
 
 desc "Build Enginemill"
 build_deps = [
+    'dist/lib/apprunner.js',
     'dist/package.json'
 ]
 task :build => build_deps do
@@ -37,6 +38,7 @@ end
 
 directory 'tmp'
 directory 'dist'
+directory 'dist/lib'
 
 file 'dist/package.json' => ['package.json', 'dist'] do |task|
     FileUtils.cp task.prerequisites.first, task.name
@@ -45,6 +47,10 @@ file 'dist/package.json' => ['package.json', 'dist'] do |task|
         ok or fail "npm could not install Maestro dependencies"
     end
     Dir.chdir ROOT
+end
+
+file 'dist/lib/apprunner.js' => ['lib/apprunner.coffee', 'dist/lib'] do |task|
+    brew_javascript task.prerequisites.first, task.name
 end
 
 def npm_install(package)
