@@ -8,8 +8,11 @@ remote=$2
 # abspath to local repository *without* trailing slash
 local_repo="$3"
 
+# the name of the appliacation
+appname="$4"
+
 # remote directory is named by the appname
-target="/home/ubuntu/platform.x_webapps/$4"
+target="/home/ubuntu/platform.x_webapps/$appname/webapp"
 
 rsync -e "ssh -i $keyfile" \
     --recursive \
