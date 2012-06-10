@@ -5,6 +5,8 @@ task :default => :build
 desc "Build Enginemill"
 build_deps = [
     'dist/lib/apprunner.js',
+    'dist/bin/em-cli.js',
+    'dist/em.js',
     'dist/package.json'
 ]
 task :build => build_deps do
@@ -39,6 +41,7 @@ end
 directory 'tmp'
 directory 'dist'
 directory 'dist/lib'
+directory 'dist/bin'
 
 file 'dist/package.json' => ['package.json', 'dist'] do |task|
     FileUtils.cp task.prerequisites.first, task.name
@@ -51,6 +54,14 @@ end
 
 file 'dist/lib/apprunner.js' => ['lib/apprunner.coffee', 'dist/lib'] do |task|
     brew_javascript task.prerequisites.first, task.name
+end
+
+file 'dist/bin/em-cli.js' => ['bin/em-cli.coffee', 'dist/bin'] do |task|
+    brew_javascript task.prerequisites.first, task.name
+end
+
+file 'dist/em.js' => ['em.js', 'dist'] do |task|
+    FileUtils.cp task.prerequisites.first, task.name
 end
 
 def npm_install(package)
