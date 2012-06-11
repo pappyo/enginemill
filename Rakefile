@@ -5,6 +5,7 @@ task :default => :build
 desc "Build Enginemill"
 build_deps = [
     'dist/lib/apprunner.js',
+    'dist/bin/deploy.sh',
     'dist/bin/em-cli.js',
     'dist/em.js',
     'dist/package.json'
@@ -54,6 +55,10 @@ end
 
 file 'dist/lib/apprunner.js' => ['lib/apprunner.coffee', 'dist/lib'] do |task|
     brew_javascript task.prerequisites.first, task.name
+end
+
+file 'dist/bin/deploy.sh' => ['bin/deploy.sh', 'dist/bin'] do |task|
+    FileUtils.cp task.prerequisites.first, task.name
 end
 
 file 'dist/bin/em-cli.js' => ['bin/em-cli.coffee', 'dist/bin'] do |task|
