@@ -5,6 +5,7 @@
     "dependencies": {
         "jaxn": "0.2.2",
         "optimist": "0.3.4",
-        "proctools": "0.1.0"
+        "proctools": "0.1.0",
+        "dnode": "0.9.11"
     }
 }

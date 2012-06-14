@@ -3,6 +3,7 @@ PATH = require 'path'
 
 OPT = require 'optimist'
 PROC = require 'proctools'
+DNODE = require 'dnode'
 
 main = (args) ->
     cmd = args[0]
@@ -29,14 +30,16 @@ do_deploy = ->
     app_ini = PATH.join(source, 'app.ini')
     
     try
-        appname = FS.readFileSync(app_ini, 'utf8')
+        appconf = FS.readFileSync(app_ini, 'utf8')
     catch readError
         console.error """It does not appear that `#{source}` is an Engine Mill application directory:
         Missing `app.ini` file in `#{source}/`
         """
         process.exit()
 
-    appname = appname.trim()
+    appconf = appconf.split('\n')
+    appname = appconf[0].trim()
+    apphost = appconf[1].trim()
     bindir = __dirname
     deploy_sh = PATH.join(bindir, 'deploy.sh')
     keyfile = PATH.join(process.env['HOME'], '.ssh', 'webserver-key-1.pem')
@@ -61,7 +64,33 @@ do_deploy = ->
 
     PROC.runCommand(cmd).fail(onfailure).then (proc) ->
         process.stdout.write(proc.stdoutBuffer)
-        console.log("#{appname} deployed")
+        restart_app appname, apphost, opts.remote, (err, res) ->
+            process.stdout.write('\n')
+            if err
+                console.error """There was a problem while attempting to restart your remote Engine Mill application:\n
+                    """
+                console.error(err.stack)
+                return
+            console.log("#{appname} deployed")
+            return
+        return
+
+    return
+
+
+restart_app = (aApp, aHost, aRemote, aCallback) ->
+    cxn = DNODE.connect 7272, aRemote, (remote) ->
+        console.log 'CP', 2
+        remote.register_app {name: aApp, hostname: aHost}, (err, res) ->
+            remote.restart_app aApp, (err, res) ->
+                cxn.end()
+                return aCallback()
+            return
+        return
+
+    cxn.once 'error', (err) ->
+        msg = "unexpected Dnode connection error: #{err.message}"
+        aCallback(new Error(msg))
         return
     return
 
