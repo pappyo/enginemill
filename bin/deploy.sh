@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # key file path
-keyfile="$1"
+if [ -f "$1" ]; then
+    keyfile="$1"
+else
+    keyfile=''
+fi
+
 # remote address
 remote=$2
 
@@ -14,7 +19,15 @@ appname="$4"
 # remote directory is named by the appname
 target="/home/ubuntu/platform.x_webapps/$appname/webapp"
 
-rsync -e "ssh -i $keyfile" \
+remote_script="/home/ubuntu/tmp-webserver/bin/mkappdir.sh"
+
+if [ ! -z "$keyfile" ]; then
+    ssh -i "$keyfile" ubuntu@$remote "$remote_script $appname"
+else
+    ssh ubuntu@$remote "$remote_script $appname"
+fi
+
+opts="\
     --recursive \
     --compress \
     --links \
@@ -30,6 +43,12 @@ rsync -e "ssh -i $keyfile" \
     --exclude='*.localized' \
     --exclude='*.DS_Store' \
     --exclude='.git**' \
-    "$local_repo/" "ubuntu@$remote:$target"
+    "
+
+if [ ! -z "$keyfile" ]; then
+    opts="$opts -e ssh -i "$keyfile""
+fi
+
+rsync $opts "$local_repo/" "ubuntu@$remote:$target"
 
 exit $?
