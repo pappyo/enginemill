@@ -80,10 +80,16 @@ do_deploy = ->
 
 restart_app = (aApp, aHost, aRemote, aCallback) ->
     cxn = DNODE.connect 7272, aRemote, (remote) ->
-        console.log 'CP', 2
         remote.register_app {name: aApp, hostname: aHost}, (err, res) ->
+            if err
+                msg = "remote register_app error: #{err.message}"
+                return aCallback(new Error(msg))
+
             remote.restart_app aApp, (err, res) ->
                 cxn.end()
+                if err
+                    msg = "remote restart_app error: #{err.message}"
+                    return aCallback(new Error(msg))
                 return aCallback()
             return
         return
