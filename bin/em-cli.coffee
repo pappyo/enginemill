@@ -5,16 +5,18 @@ OPT = require 'optimist'
 PROC = require 'proctools'
 DNODE = require 'dnode'
 
+APPS = require '../lib/apprunner'
+
 main = (args) ->
     cmd = args[0]
 
     switch cmd
-        when 'run' then console.log 'RUNLOCALAPP'
+        when 'run' then do_run()
         when 'deploy' then do_deploy()
         else
             console.log "Unknown command `#{cmd}`"
             console.log "Use `run` or `deploy`"
-            process.exit 1
+            process.exit(1)
     return
 
 do_deploy = ->
@@ -75,6 +77,34 @@ do_deploy = ->
             return
         return
 
+    return
+
+
+do_run = ->
+    opts = OPT.usage("Run the Engine Mill development server")
+        .options({'address': {alias: 'a', 'default': 'localhost'}})
+        .describe('address', "Hostname or IP address to run on")
+        .options({'port': {alias: 'p', 'default': 8080}})
+        .describe('port', "The port run on")
+        .options({'dir': {alias: 'd'}})
+        .describe('dir', "Path to the local application directory")
+        .argv
+
+    # Defaults to process.cwd()
+    source = PATH.resolve(process.cwd(), opts.dir)
+
+    appOpts =
+        path: source
+        hostname: opts.address
+        port: opts.port
+    server = APPS.main appOpts, (err, addr) ->
+        if err
+            console.error "There was a problem starting the development server:"
+            console.error(err.stack or err.toString())
+            process.exit(2)
+
+        console.log "dev server running on #{addr.address}:#{addr.port}"
+        return
     return
 
 
