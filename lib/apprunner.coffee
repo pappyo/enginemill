@@ -1,8 +1,5 @@
-FS = require 'fs'
 PATH = require 'path'
-VM = require 'vm'
-
-COFFEE = require 'coffee-script'
+MOD = require 'module'
 
 
 exports.main = (aOpts, aCallback) ->
@@ -10,6 +7,7 @@ exports.main = (aOpts, aCallback) ->
     path = aOpts.path
     port = aOpts.port
     hostname = aOpts.hostname
+    emitter = aOpts.emitter
 
     resolved = no
     resolve = (err, info) ->
@@ -23,38 +21,29 @@ exports.main = (aOpts, aCallback) ->
 
     APP.once('error', resolve)
 
-    context =
-        EM: APP
-
+    global.EM = APP
     if typeof aOpts.appGlobals
         for own p, v of aOpts.appGlobals
-            context[p] = v
-    loadAppfile(path, context)
+            global[p] = v
+
+    appfile = PATH.join(path, 'app')
+    require('coffee-script')
+    if MOD._findPath(appfile) then require(appfile)
 
     server = APP.run port, hostname, (addr) ->
-        APP.on 'error', (err) ->
-            return server.emit('error', err)
+        APP.removeListener('error', resolve)
+        if emitter
+            emit = (event, args) ->
+                args.unshift(event)
+                return emitter.emit.apply(emitter, args)
+
+            APP.on 'error', (args...) ->
+                return emit('error', args)
+            APP.on 'warning', (args...) ->
+                return emit('warning', args)
+            APP.on 'info', (args...) ->
+                return emit('info', args)
+
         return resolve(null, addr)
 
     return server
-
-loadAppfile = (aPath, aContext) ->
-    {text, appfile} = readAppfile(aPath)
-    if not text then return
-    context = VM.createContext(aContext)
-    VM.runInContext(text, context, appfile)
-    return
-
-readAppfile = (aRoot) ->
-    extensions = ['js', 'coffee']
-
-    for ext in extensions
-        appfile = PATH.join(aRoot, "app.#{ext}")
-        try
-            text = FS.readFileSync(appfile, 'utf8')
-            if ext is 'coffee'
-                text = COFFEE.compile(text)
-            return {text: text, appfile: appfile}
-        catch readError
-            if readError.code is 'ENOENT' then continue
-    return {text: null, appfile: null}

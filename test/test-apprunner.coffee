@@ -1,4 +1,5 @@
 PATH = require 'path'
+EventEmitter = require('events').EventEmitter
 
 REQ = require 'request'
 
@@ -6,6 +7,7 @@ FIXTURES = PATH.join(__dirname, 'fixtures')
 DEFAULT_APP = PATH.join(FIXTURES, 'default-app')
 
 describe 'apprunner', ->
+    MOD = require 'module'
     APR = require '../dist/lib/apprunner'
 
     gServer = null
@@ -15,6 +17,7 @@ describe 'apprunner', ->
             path: DEFAULT_APP
             hostname: 'localhost'
             port: 8001
+            emitter: new EventEmitter()
 
         if opts
             for own p, v of opts
@@ -22,6 +25,12 @@ describe 'apprunner', ->
 
         gServer = APR.main(defaults, callback)
         return gServer
+
+    beforeEach (done) ->
+        # We need to "unload" the application file before each tests, which
+        # means removing it from Node.js module loader cache
+        delete MOD._cache[PATH.join(DEFAULT_APP, 'app.js')]
+        return done()
 
     afterEach (done) ->
         if gServer is null then return done()
@@ -79,17 +88,17 @@ describe 'apprunner', ->
 
     it 'should run an application file', (done) ->
         @expectCount(1)
-        appGlobals =
-            LOG: 'log-util'
-            DB: 'database'
+        emitter = new EventEmitter()
+        emitter.on 'error', (err) ->
+            return done(err)
 
-        createApp {appGlobals: appGlobals}, (err, info) ->
+        createApp {emitter: emitter}, (err, info) ->
             if err then return done(err)
             return test()
 
         test = ->
             opts =
-                uri: 'http://localhost:8001/globals'
+                uri: 'http://localhost:8001/app'
             REQ.get opts, (err, res, body) ->
                 if err then return done(err)
                 expect(res.statusCode).toBe(200)
