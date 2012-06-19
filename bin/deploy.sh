@@ -1,4 +1,6 @@
 #!/bin/bash
+bindir="$(cd `dirname "$0"` && pwd)"
+enginemill_repo="$( dirname "$bindir" )"
 
 # key file path
 if [ -f "$1" ]; then
@@ -17,7 +19,7 @@ local_repo="$3"
 appname="$4"
 
 # remote directory is named by the appname
-target="/home/ubuntu/platform.x_webapps/$appname/webapp"
+target="/home/ubuntu/platform.x_webapps/$appname"
 
 remote_script="/home/ubuntu/tmp-webserver/bin/mkappdir.sh"
 
@@ -49,6 +51,7 @@ if [ ! -z "$keyfile" ]; then
     opts="$opts -e ssh -i "$keyfile""
 fi
 
-rsync $opts "$local_repo/" "ubuntu@$remote:$target"
+rsync $opts "$local_repo/" "ubuntu@$remote:$target/webapp"
+rsync $opts "$enginemill_repo/" "ubuntu@$remote:$target/enginemill"
 
 exit $?
