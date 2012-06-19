@@ -35,4 +35,9 @@ exports.main = ->
 
         log.info "#{opts.name} running on #{addr.address}:#{addr.port}"
         return
+
+    process.on 'uncaughtException', (err) ->
+        log.fatal(err, 'uncaught exception')
+        process.exit(1)
+
     return

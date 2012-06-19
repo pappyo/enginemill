@@ -1,6 +1,8 @@
 PATH = require 'path'
 EventEmitter = require('events').EventEmitter
 
+REQ = require 'request'
+
 
 describe 'server', ->
     PROC = require 'proctools'
@@ -41,12 +43,18 @@ describe 'server', ->
 
     afterEach (done) ->
         if gPID is null then return done()
-        PROC.kill(gPID).fail(done).then ->
+
+        onfailure = (err) ->
+            if /^kill: No such process/.test(err.stack)
+                return done()
+            return done(err)
+
+        PROC.kill(gPID).fail(onfailure).then ->
             return done()
         return
 
 
-    it 'should', (done) ->
+    it 'should start with logline', (done) ->
         @expectCount(2)
         startServerProcess null, (err, rv) ->
             if err then return done(err)
@@ -55,6 +63,23 @@ describe 'server', ->
             expect(line.level).toBe(30)
             expect(line.msg).toBe('Engine Mill Webapp running on 127.0.0.1:8080')
             return done()
+        return
+
+    it 'should log and exit when unexpected exceptions surface', (done) ->
+        @expectCount(3)
+        startServerProcess null, (err, rv) ->
+            if err then return done(err)
+
+            rv.emitter.on 'stdout', (chunk) ->
+                line = JSON.parse(chunk.split('\n')[0])
+                expect(line.level).toBe(60)
+                expect(line.err.message).toBe('bad error')
+                expect(line.msg).toBe('uncaught exception')
+                return done()
+
+            REQ.get 'http://localhost:8080/throw-error', (err, res, body) ->
+                return
+            return
         return
 
     return
