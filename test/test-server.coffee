@@ -17,7 +17,7 @@ describe 'server', ->
             return aCallback(err)
 
         cmd =
-            command: PATH.resolve(__dirname, '../dist/enginemill.js')
+            command: PATH.resolve(__dirname, '../dist/bin/enginemill.js')
             buffer: yes
             args: [
                 '--address', 'localhost'

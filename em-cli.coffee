@@ -5,7 +5,7 @@ OPT = require 'optimist'
 PROC = require 'proctools'
 DNODE = require 'dnode'
 
-APPS = require '../lib/apprunner'
+APPS = require './lib/apprunner'
 
 main = (args) ->
     cmd = args[0]

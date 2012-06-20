@@ -1,7 +1,7 @@
 {
 "name": "enginemill",
 "version": "0.1.0",
-"bin": {"em": "./em.js", "enginemill": "./enginemill.js"},
+"bin": {"em": "./bin/em.js", "enginemill": "./bin/enginemill.js"},
 "description": "Making it dead simple to build stuff on the internets since 2012",
     "dependencies": {
         "jaxn": "0.2.2",

@@ -3,7 +3,7 @@ PATH = require 'path'
 OPT = require 'optimist'
 BUN = require 'bunyan'
 
-APPS = require '../lib/apprunner'
+APPS = require './lib/apprunner'
 
 
 exports.main = (aOpts) ->
