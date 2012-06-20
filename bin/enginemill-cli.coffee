@@ -6,8 +6,8 @@ BUN = require 'bunyan'
 APPS = require '../lib/apprunner'
 
 
-exports.main = ->
-    opts = OPT.usage("Run the Engine Mill development server")
+exports.main = (aOpts) ->
+    opts = aOpts or OPT.usage("Run the Engine Mill development server")
         .options({'address': {alias: 'a', 'default': 'localhost'}})
         .describe('address', "Hostname or IP address to run on")
         .options({'port': {alias: 'p', 'default': 8080}})
