@@ -42,7 +42,7 @@ do_deploy = ->
     appconf = appconf.split('\n')
     appname = appconf[0].trim()
     apphost = appconf[1].trim()
-    bindir = __dirname
+    bindir = PATH.join(__dirname, 'bin')
     deploy_sh = PATH.join(bindir, 'deploy.sh')
     keyfile = PATH.join(process.env['HOME'], '.ssh', 'webserver-key-1.pem')
 
